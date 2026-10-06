@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f5f6f3">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' https: data:; connect-src 'self'">
+    <title>User Administration | Mital Brass Industries</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css">
+    <script src="script.js" defer></script>
+    <script src="backend-admin.js" defer></script>
+</head>
+<body>
+    <main class="auth-screen" id="authScreen">
+        <section class="auth-panel">
+            <a class="brand auth-brand" href="index.html"><span class="brand-mark">M</span><span class="brand-copy"><strong>MITAL</strong><small>BRASS INDUSTRIES</small></span></a>
+            <div class="eyebrow"><span class="eyebrow-line"></span> SECURE ADMINISTRATION</div>
+            <h1 id="authTitle">Connecting to database</h1>
+            <p class="auth-description" id="authDescription">Checking MySQL service...</p>
+            <p class="auth-error" id="authError" role="alert" hidden></p>
+            <form id="setupForm" hidden>
+                <label class="field"><span>Administrator name</span><input name="name" type="text" autocomplete="name" required></label>
+                <label class="field"><span>Email address</span><input name="email" type="email" autocomplete="email" required></label>
+                <label class="field"><span>Password (12 characters minimum)</span><input name="password" type="password" autocomplete="new-password" minlength="12" required></label>
+                <button class="button button-primary auth-submit" type="submit">Create administrator</button>
+            </form>
+            <form id="loginForm" hidden>
+                <label class="field"><span>Email address</span><input name="email" type="email" autocomplete="username" required></label>
+                <label class="field"><span>Password</span><input name="password" type="password" autocomplete="current-password" required></label>
+                <button class="button button-primary auth-submit" type="submit">Sign in</button>
+            </form>
+            <a class="auth-back" href="index.html">← Back to company website</a>
+        </section>
+    </main>
+
+    <div class="app-shell" id="adminApp" hidden>
+        <aside class="sidebar" aria-label="Main navigation">
+            <a class="brand" href="index.html" aria-label="Mital Brass Industries">
+                <span class="brand-mark">M</span><span class="brand-copy"><strong>MITAL</strong><small>BRASS INDUSTRIES</small></span>
+            </a>
+            <div class="workspace-label">WEBSITE</div>
+            <nav class="side-nav" aria-label="Admin sections">
+                <a class="nav-item active" href="#products" data-view="products"><span class="nav-icon">P</span><span>Products</span></a>
+                <a class="nav-item" href="#enquiries" data-view="enquiries"><span class="nav-icon">E</span><span>Enquiries</span><span class="nav-count" id="enquiryNavCount">0</span></a>
+                <a class="nav-item" href="#customers" data-view="customers"><span class="nav-icon">C</span><span>Customers</span></a>
+                <a class="nav-item" href="#settings" data-view="settings"><span class="nav-icon">S</span><span>Company settings</span></a>
+            </nav>
+            <div class="sidebar-bottom">
+                <div class="sidebar-status"><span class="status-dot"></span><span>MySQL connected</span></div>
+                <div class="profile-chip"><span class="avatar avatar-admin">MB</span><span class="profile-copy"><strong id="adminName">Administrator</strong><small id="adminEmail">Signed in</small></span></div>
+            </div>
+        </aside>
+        <main class="main-content">
+            <header class="topbar">
+                <div class="breadcrumbs"><span>MITAL BRASS</span><span class="crumb-divider">/</span><strong id="breadcrumbTitle">Products</strong></div>
+                <div class="topbar-right"><span class="topbar-date" id="todayLabel"></span><button class="text-button" id="logoutButton" type="button">Sign out</button><span class="avatar avatar-admin top-avatar">MB</span></div>
+            </header>
+            <div class="content-wrap">
+                <section class="page-heading" aria-labelledby="pageTitle">
+                    <div><div class="eyebrow"><span class="eyebrow-line"></span> WEBSITE ADMIN</div><h1 id="pageTitle">Products</h1><p class="page-subtitle" id="pageSubtitle">Manage products shown on your public website.</p></div>
+                    <div class="heading-actions"><button class="button button-secondary" id="exportButton" type="button">↓ Export CSV</button><button class="button button-primary" id="addProductButton" type="button">＋ Add product</button></div>
+                </section>
+                <section class="stats-grid" aria-label="Website data summary">
+                    <article class="stat-card stat-total"><div class="stat-top"><span id="statLabel1">Products</span><span class="stat-mark">01</span></div><strong id="statValue1">0</strong><small id="statNote1">In your catalog</small></article>
+                    <article class="stat-card stat-active"><div class="stat-top"><span id="statLabel2">Customers</span><span class="stat-mark">02</span></div><strong id="statValue2">0</strong><small id="statNote2">Saved in MySQL</small></article>
+                    <article class="stat-card stat-invited"><div class="stat-top"><span id="statLabel3">New enquiries</span><span class="stat-mark">03</span></div><strong id="statValue3">0</strong><small id="statNote3">Need follow-up</small></article>
+                    <article class="stat-card stat-suspended"><div class="stat-top"><span id="statLabel4">Categories</span><span class="stat-mark">04</span></div><strong id="statValue4">0</strong><small id="statNote4">Product ranges</small></article>
+                </section>
+                <section class="directory-panel" id="directoryPanel">
+                    <div class="panel-heading"><div><h2><span id="directoryTitle">All products</span> <span class="heading-count" id="headingCount">0</span></h2><p id="directoryDescription">Items shown in the public catalog.</p></div><button class="text-button" id="clearFiltersButton" type="button">Clear filters</button></div>
+                    <div class="toolbar"><label class="search-box"><span class="search-icon" aria-hidden="true"></span><span class="sr-only">Search records</span><input id="searchInput" type="search" placeholder="Search products" autocomplete="off"></label><label class="select-wrap"><span class="sr-only">Filter category</span><select id="categoryFilter"><option value="">All categories</option></select></label><label class="select-wrap"><span class="sr-only">Filter status</span><select id="statusFilter"><option value="">All statuses</option><option value="new">New</option><option value="contacted">Contacted</option><option value="closed">Closed</option></select></label></div>
+                    <div class="table-scroll"><table><thead id="tableHead"></thead><tbody id="userTableBody"></tbody></table><div class="empty-state" id="emptyState" hidden><span class="empty-mark">?</span><strong>No records found</strong><p>Try adjusting your search or filters.</p><button class="text-button" id="emptyClearButton" type="button">Clear search and filters</button></div></div>
+                    <footer class="table-footer"><span id="resultSummary">Loading records...</span><span class="table-footer-note"><span class="status-dot"></span> MySQL database</span></footer>
+                </section>
+                <section class="directory-panel settings-panel" id="settingsPanel" hidden>
+                    <div class="panel-heading"><div><h2>Company details</h2><p>These contact details are displayed on the public website.</p></div></div>
+                    <form id="settingsForm" class="settings-form">
+                        <label class="field"><span>Company name</span><input name="company_name" required></label>
+                        <label class="field"><span>Phone numbers</span><input name="phone" required></label>
+                        <label class="field"><span>Email</span><input name="email" type="email" required></label>
+                        <label class="field"><span>City and region</span><input name="city" required></label>
+                        <label class="field field-wide"><span>WhatsApp number with country code</span><input name="whatsapp" placeholder="919824233524"></label>
+                        <label class="field field-wide"><span>Company description</span><textarea name="description" rows="4"></textarea></label>
+                        <button class="button button-primary" type="submit">Save company details</button>
+                    </form>
+                </section>
+                <aside class="local-notice"><span class="notice-mark" aria-hidden="true">i</span><p><strong>Connected to MySQL:</strong> Your product catalogue, customer records, enquiries, and settings use the mitalbrassind database.</p></aside>
+            </div>
+        </main>
+    </div>
+
+    <dialog class="user-dialog" id="productDialog" aria-labelledby="dialogTitle">
+        <form id="productForm">
+            <div class="dialog-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> PUBLIC CATALOG</div><h2 id="dialogTitle">Add product</h2><p>Changes appear on the public website.</p></div><button class="icon-button" id="closeDialogButton" type="button" aria-label="Close dialog">×</button></div>
+            <input id="productId" type="hidden">
+            <div class="form-grid">
+                <label class="field field-wide"><span>Product name</span><input id="productNameAdmin" type="text" maxlength="190" required></label>
+                <label class="field"><span>Category</span><input id="productCategoryAdmin" type="text" maxlength="120" required></label>
+                <label class="field"><span>Sizes</span><input id="productSizesAdmin" type="text" maxlength="255"></label>
+                <label class="field field-wide"><span>Description</span><textarea id="productDescriptionAdmin" rows="3" required></textarea></label>
+                <label class="field field-wide"><span>Image URL or relative path</span><input id="productImageAdmin" type="text"></label>
+                <label class="field field-wide"><span>Additional image URLs (one per line)</span><textarea id="productGalleryAdmin" rows="3"></textarea></label>
+            </div>
+            <div class="dialog-actions"><button class="button button-secondary" id="cancelDialogButton" type="button">Cancel</button><button class="button button-primary" id="saveProductButton" type="submit">Save product</button></div>
+        </form>
+    </dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
