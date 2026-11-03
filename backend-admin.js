@@ -40,19 +40,11 @@ function escapeHTML(value) {
 }
 
 function getDemoStore() {
-    try {
-        const stored = localStorage.getItem(DEMO_STORAGE_KEY);
-        if (stored) {
-            const parsed = JSON.parse(stored);
-            if (parsed && Array.isArray(parsed.products) && parsed.products.length) return parsed;
-        }
-    } catch (_) {}
-
     const sourceProducts = (typeof window !== "undefined" && Array.isArray(window.MBI_DEFAULT_PRODUCTS) && window.MBI_DEFAULT_PRODUCTS.length)
         ? window.MBI_DEFAULT_PRODUCTS
         : (typeof products !== "undefined" && Array.isArray(products)) ? products : [];
 
-    const initialProducts = sourceProducts.map((item, idx) => ({
+    const defaultProducts = sourceProducts.map((item, idx) => ({
         id: idx + 1,
         name: item.name,
         category: item.category,
@@ -63,55 +55,15 @@ function getDemoStore() {
         is_active: item.is_active !== undefined ? (item.is_active ? 1 : 0) : 1
     }));
 
-    const demoStore = {
+    const defaults = {
         admin: {
             id: 1,
             name: "MBI Admin",
             email: "mitalbrassindustries@gmail.com"
         },
-        products: initialProducts,
-        enquiries: [
-            {
-                id: 1,
-                full_name: "Amit Patel",
-                email: "amit.patel@precisioneng.com",
-                phone: "+91 98251 23456",
-                company: "Precision Engineering Works",
-                product_name: "Brass Stop Plug",
-                message: "Interested in monthly supply of 5,000 units. Please share technical catalog and delivery lead times.",
-                status: "new",
-                created_at: new Date(Date.now() - 3600000 * 3).toISOString()
-            },
-            {
-                id: 2,
-                full_name: "Suresh Menon",
-                email: "suresh@menonelec.in",
-                phone: "+91 94471 88990",
-                company: "Menon Electricals",
-                product_name: "Brass Knurling Insert",
-                message: "Looking for sample batch of M4 and M5 inserts for ultrasonic insertion testing.",
-                status: "contacted",
-                created_at: new Date(Date.now() - 86400000 * 2).toISOString()
-            }
-        ],
-        customers: [
-            {
-                full_name: "Amit Patel",
-                phone: "+91 98251 23456",
-                email: "amit.patel@precisioneng.com",
-                company: "Precision Engineering Works",
-                enquiry_count: 1,
-                created_at: new Date(Date.now() - 3600000 * 3).toISOString()
-            },
-            {
-                full_name: "Suresh Menon",
-                phone: "+91 94471 88990",
-                email: "suresh@menonelec.in",
-                company: "Menon Electricals",
-                enquiry_count: 1,
-                created_at: new Date(Date.now() - 86400000 * 2).toISOString()
-            }
-        ],
+        products: defaultProducts,
+        enquiries: [],
+        customers: [],
         settings: {
             company_name: "Mital Brass Industries",
             phone: "9824233524 | 9427249080",
@@ -122,6 +74,37 @@ function getDemoStore() {
         }
     };
 
+    let stored;
+    try {
+        stored = localStorage.getItem(DEMO_STORAGE_KEY);
+    } catch {
+        throw new Error("Demo data is unavailable because this browser blocked local storage.");
+    }
+
+    if (stored === null) {
+        saveDemoStore(defaults);
+        return defaults;
+    }
+
+    let parsed;
+    try {
+        parsed = JSON.parse(stored);
+    } catch {
+        throw new Error("Saved demo data could not be read. Clear this site's browser data to start a fresh demo.");
+    }
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        throw new Error("Saved demo data is invalid. Clear this site's browser data to start a fresh demo.");
+    }
+
+    const demoStore = {
+        ...defaults,
+        ...parsed,
+        admin: { ...defaults.admin, ...(parsed.admin || {}) },
+        products: Array.isArray(parsed.products) ? parsed.products : defaults.products,
+        enquiries: Array.isArray(parsed.enquiries) ? parsed.enquiries : defaults.enquiries,
+        customers: Array.isArray(parsed.customers) ? parsed.customers : defaults.customers,
+        settings: { ...defaults.settings, ...(parsed.settings || {}) }
+    };
     saveDemoStore(demoStore);
     return demoStore;
 }
@@ -129,7 +112,9 @@ function getDemoStore() {
 function saveDemoStore(store) {
     try {
         localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(store));
-    } catch (_) {}
+    } catch {
+        throw new Error("Could not save demo data in this browser. Check that local storage is enabled and has space.");
+    }
 }
 
 function handleDemoApiRequest(action, options = {}) {
@@ -313,7 +298,13 @@ function showLogin() {
 
 function enableDemoMode() {
     isDemoMode = true;
-    const store = getDemoStore();
+    let store;
+    try {
+        store = getDemoStore();
+    } catch (error) {
+        displayAuthError(error.message);
+        return;
+    }
 
     // Update UI indicators to show GitHub Demo Mode
     const statusLabel = document.querySelector(".sidebar-status span:last-child");
@@ -502,7 +493,7 @@ function renderStats() {
     const activeProducts = adminState.products.filter(product => product.is_active).length;
     const categories = new Set(adminState.products.filter(product => product.is_active).map(product => product.category)).size;
     const newEnquiries = adminState.enquiries.filter(enquiry => enquiry.status === "new").length;
-    setStats(["Products", "Customers", "New enquiries", "Categories"], [activeProducts, adminState.customers.length, newEnquiries, categories], ["In your public catalog", "Saved in MySQL", "Need follow-up", "Product ranges"]);
+    setStats(["Products", "Customers", "New enquiries", "Categories"], [activeProducts, adminState.customers.length, newEnquiries, categories], ["In your public catalog", isDemoMode ? "Saved in this browser" : "Saved in MySQL", "Need follow-up", "Product ranges"]);
     document.querySelector("#enquiryNavCount").textContent = newEnquiries;
 }
 
