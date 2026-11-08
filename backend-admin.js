@@ -1,4 +1,4 @@
-const API_URL = "index.php";
+﻿const API_URL = "index.php";
 let csrfToken = "";
 let isDemoMode = false;
 const DEMO_STORAGE_KEY = "mbi_demo_admin_v1";
@@ -494,7 +494,7 @@ function renderStats() {
     const categories = new Set(adminState.products.filter(product => product.is_active).map(product => product.category)).size;
     const newEnquiries = adminState.enquiries.filter(enquiry => enquiry.status === "new").length;
     setStats(["Products", "Customers", "New enquiries", "Categories"], [activeProducts, adminState.customers.length, newEnquiries, categories], ["In your public catalog", isDemoMode ? "Saved in this browser" : "Saved in MySQL", "Need follow-up", "Product ranges"]);
-    document.querySelector("#enquiryNavCount").textContent = newEnquiries;
+    document.querySelector("#enquiryNavCount").textContent = adminState.enquiries.length;
 }
 
 async function refreshData() {
